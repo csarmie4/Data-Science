@@ -1,0 +1,61 @@
+Window functions: Perform an operation across a set of rows that are somehow related to the current row. Similar to GROUP BY aggregate functions, 
+but all rows remain in the output. OVER() clause indicates that it is a window function. 
+
+
+======================= BASICS window fucntions
+
+# adding row number
+--Number each row in the dataset
+SELECT *, ROW_NUMBER() OVER() AS Row_N FROM Summer_medals;
+
+# adding order 
+OVER(ORDER BY Year DESC, Event ASC) AS Row_N
+
+# LAG
+--returns column's value at the row n rows before the current row
+LAG(Champion, 1) OVER(ORDER BY Year ASC) AS Last_Champion FROM Weightlifting_Gold;
+
+# LEAD
+--returns column's value at the row n rows after the current row
+LEAD(City, 1) OVER(ORDER BY Year ASC)
+
+# Retrive first and last value
+FIRST_VALUE(City) OVER()
+--adding RANGE BETWEEN clause extends the window to the end of the table or partition
+LAST_VALUE(City) OVER(ORDER BY Year ASC RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Last_City
+
+# split table into partitions
+--Return the previous champions of each year's event by gender, and event.
+OVER(PARTITION BY Gender, Event ORDER BY Year ASC) AS Last_Champion
+
+# ranking
+/* ROW_NUMBERS() assigns unique values, RANK() assigns same numbers to idential values skipping over the next number,
+--DENSE_RANK() does not skip over the next number */
+SELECT *, RANK() OVER(ORDER BY Games, DESC) AS Rank_N FROM Summer_medals;
+
+# paging
+--split data into approximately N equal chunks
+NTILE(15) OVER() AS Page
+
+# ROWS vs RANGE 
+--RANGE BETWEEN [START] AND [FINISH] treats duplicates in OVER's ORDER BY subclause as a single entity while ROWS does not.
+--ROWS is almost always used 
+
+
+======================= Transforming tables
+
+# pivoting
+CREATE EXTENTION IF NOT EXISTS tablefunc;
+SELECT * FROM CROSSTAB($$ ... ##) AS ct (Country VARCHAR, "2008" INTEGER, "2012" INTEGER)
+
+# ROLLUP() and CUBE()
+GROUP BY Country, ROLLUP(Gender)
+GROUP BY CUBE(Gender, Medal)
+
+# Coalesce
+--takes a list of values and returns the first non-null value. Replaces null values with a string
+COALESCE(Country, 'Both countries') AS Country
+
+# String aggregation
+--takes all the values of a column and concatenates them, with separator in between each value
+STRING_AGG(Country, ', ')

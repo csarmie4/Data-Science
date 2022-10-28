@@ -1,0 +1,5 @@
+======================= Data types
+
+# what data type?
+SELECT column_name, data_type FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'film'
+

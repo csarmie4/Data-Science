@@ -3,5 +3,8 @@
 *csv
 *p
 *txt
+*.txt
+*.npy
+*.hdf5
 
 *.p
